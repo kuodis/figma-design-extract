@@ -125,8 +125,8 @@ function extractTypography() {
       fontSize: style.fontSize,
       lineHeight: resolveLineHeight(style.lineHeight),
       letterSpacing: resolveLetterSpacing(style.letterSpacing),
-      textDecoration: style.textDecoration || 'NONE',
-      textCase: style.textCase || 'ORIGINAL'
+      textDecoration: safe(style.textDecoration, 'NONE'),
+      textCase: safe(style.textCase, 'ORIGINAL')
     });
   }
 
@@ -135,6 +135,7 @@ function extractTypography() {
     if (node.type !== 'TEXT') return;
     const fontName = node.fontName;
     if (typeof fontName === 'symbol') return; // mixed
+    if (typeof node.fontSize === 'symbol') return; // mixed
     const key = `${fontName.family}-${node.fontSize}-${fontName.style}`;
     if (seen.has(key)) return;
     seen.add(key);
@@ -145,8 +146,8 @@ function extractTypography() {
       fontSize: typeof node.fontSize === 'number' ? node.fontSize : null,
       lineHeight: resolveLineHeight(node.lineHeight),
       letterSpacing: resolveLetterSpacing(node.letterSpacing),
-      textDecoration: node.textDecoration || 'NONE',
-      textCase: node.textCase || 'ORIGINAL'
+      textDecoration: safe(node.textDecoration, 'NONE'),
+      textCase: safe(node.textCase, 'ORIGINAL')
     });
   }, 300);
 
@@ -278,7 +279,7 @@ function extractComponents() {
         for (const [key, def] of Object.entries(node.componentPropertyDefinitions)) {
           comp.properties[key] = {
             type: def.type,
-            defaultValue: def.defaultValue,
+            defaultValue: safe(def.defaultValue),
             variantOptions: def.variantOptions || undefined
           };
         }
@@ -330,7 +331,7 @@ function extractChildStructure(node, depth) {
       const solid = child.fills.find(f => f.type === 'SOLID' && f.visible !== false);
       if (solid) info.fill = rgbToHex(solid.color.r, solid.color.g, solid.color.b);
     }
-    if ('cornerRadius' in child && child.cornerRadius) {
+    if ('cornerRadius' in child && child.cornerRadius && typeof child.cornerRadius !== 'symbol') {
       info.cornerRadius = typeof child.cornerRadius === 'number' ? child.cornerRadius : 'mixed';
     }
     info.children = extractChildStructure(child, depth - 1);
@@ -351,7 +352,7 @@ function extractFrames() {
         height: round(node.height),
         layout: ('layoutMode' in node && node.layoutMode !== 'NONE') ? extractAutoLayout(node) : null,
         fills: extractNodeFills(node),
-        cornerRadius: 'cornerRadius' in node ? node.cornerRadius : 0,
+        cornerRadius: ('cornerRadius' in node && typeof node.cornerRadius !== 'symbol') ? node.cornerRadius : 0,
         children: extractChildStructure(node, 2)
       });
       if (frames.length >= 50) break;
@@ -378,11 +379,16 @@ function extractAutoLayout(node) {
     paddingLeft: node.paddingLeft,
     primaryAlign: node.primaryAxisAlignItems,
     counterAlign: node.counterAxisAlignItems,
-    wrap: node.layoutWrap || 'NO_WRAP'
+    wrap: safe(node.layoutWrap, 'NO_WRAP')
   };
 }
 
 // --- Helpers ---
+function safe(v, fallback) {
+  if (typeof v === 'symbol') return fallback !== undefined ? fallback : null;
+  return v;
+}
+
 function walkNodes(root, fn, limit) {
   let count = 0;
   const stack = [root];
