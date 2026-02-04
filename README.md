@@ -38,7 +38,7 @@ Figma Plugin → localhost:9876 → ~/.design-systems/file.json → /design-syst
 ### Install
 
 ```bash
-git clone https://github.com/minkuodis/figma-design-extract.git
+git clone https://github.com/kuodis/figma-design-extract.git
 cd figma-design-extract
 ./install.sh
 ```
