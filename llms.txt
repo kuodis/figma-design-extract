@@ -16,7 +16,7 @@ Three components:
 
 2. **Local Server** (`server.js`): Zero-dependency Node.js HTTP server on port 9876. Receives POST to `/extract`, saves JSON to `~/.design-systems/<name>.json` and `./design-system.json`. CORS enabled for Figma plugin iframe access.
 
-3. **Claude Code Skill** (`skill/design-system.md`): Installed as `/design-system` slash command. Reads extracted JSON, generates `.designrules` file with design tokens, component pseudo-XML, frame layouts, and platform mappings (CSS, SwiftUI, Jetpack Compose, Flutter).
+3. **Claude Code Skill** (via [kuodis/claude-plugins](https://github.com/kuodis/claude-plugins) marketplace): The `/design-system` slash command. Reads extracted JSON, generates `.designrules` file with design tokens, component pseudo-XML, frame layouts, and platform mappings (CSS, SwiftUI, Jetpack Compose, Flutter). Install with `/plugin install design-system@kuodis/claude-plugins`.
 
 ## Key Files
 
@@ -24,8 +24,7 @@ Three components:
 - [plugin/manifest.json](plugin/manifest.json): Figma plugin manifest with `networkAccess.allowedDomains` set to `localhost:9876`.
 - [plugin/ui.html](plugin/ui.html): Plugin UI with Extract button, progress states, and stats display.
 - [server.js](server.js): HTTP server, ~50 lines, handles POST `/extract` with JSON body, saves to two locations.
-- [skill/design-system.md](skill/design-system.md): Claude Code slash command prompt defining the `.designrules` output format.
-- [install.sh](install.sh): Copies skill to `~/.claude/commands/`, creates `~/.design-systems/`.
+- [install.sh](install.sh): Creates `~/.design-systems/` storage directory. The `/design-system` skill is installed separately via the plugin marketplace.
 
 ## Extracted JSON Schema
 

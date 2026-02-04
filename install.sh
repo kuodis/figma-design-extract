@@ -10,17 +10,14 @@ echo ""
 mkdir -p ~/.design-systems
 echo "✓ Created ~/.design-systems/"
 
-# Install Claude Code skill
-mkdir -p ~/.claude/commands
-cp "$DIR/skill/design-system.md" ~/.claude/commands/design-system.md
-echo "✓ Installed /design-system skill"
-
 echo ""
 echo "=== Setup Complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Start server:  node $DIR/server.js"
-echo "  2. In Figma:       Plugins → Development → Import plugin from manifest"
+echo "  1. Install the /design-system skill in Claude Code:"
+echo "     /plugin install design-system@kuodis/claude-plugins"
+echo "  2. Start server:  node $DIR/server.js"
+echo "  3. In Figma:       Plugins → Development → Import plugin from manifest"
 echo "     Select:         $DIR/plugin/manifest.json"
-echo "  3. Open a Figma file, run the plugin, click Extract"
-echo "  4. In any project: /design-system"
+echo "  4. Open a Figma file, run the plugin, click Extract"
+echo "  5. In any project: /design-system"
