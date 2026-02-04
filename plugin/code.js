@@ -102,7 +102,7 @@ function paintToColor(paint, name) {
       color: rgbToHex(s.color.r, s.color.g, s.color.b),
       position: round(s.position)
     }));
-    return { name: name || null, hex: stops[0]?.color || '#000000', type: paint.type.toLowerCase(), stops };
+    return { name: name || null, hex: (stops[0] && stops[0].color) || '#000000', type: paint.type.toLowerCase(), stops };
   }
   return null;
 }
@@ -186,7 +186,7 @@ function serializeEffect(e) {
   if (e.type === 'DROP_SHADOW' || e.type === 'INNER_SHADOW') {
     base.color = e.color ? rgbToHex(e.color.r, e.color.g, e.color.b) : '#000';
     base.opacity = e.color ? round(e.color.a) : 1;
-    base.offset = { x: e.offset?.x || 0, y: e.offset?.y || 0 };
+    base.offset = { x: (e.offset && e.offset.x) || 0, y: (e.offset && e.offset.y) || 0 };
     base.radius = e.radius || 0;
     base.spread = e.spread || 0;
   }
@@ -225,7 +225,8 @@ function extractVariables() {
         if (!v) continue;
         const modes = {};
         for (const modeId of Object.keys(v.valuesByMode)) {
-          const modeName = collection.modes.find(m => m.modeId === modeId)?.name || modeId;
+          var modeMatch = collection.modes.find(function(m) { return m.modeId === modeId; });
+          var modeName = (modeMatch && modeMatch.name) || modeId;
           const raw = v.valuesByMode[modeId];
           modes[modeName] = resolveVariableValue(raw, v.resolvedType);
         }
@@ -320,7 +321,7 @@ function extractChildStructure(node, depth) {
       visible: child.visible !== false
     };
     if (child.type === 'TEXT') {
-      info.characters = child.characters?.substring(0, 100);
+      info.characters = child.characters ? child.characters.substring(0, 100) : undefined;
     }
     if ('layoutMode' in child && child.layoutMode !== 'NONE') {
       info.layout = extractAutoLayout(child);
