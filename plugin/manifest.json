@@ -1,0 +1,12 @@
+{
+  "name": "Design System Extractor",
+  "id": "design-system-extractor-local",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["http://localhost:9876"],
+    "devAllowedDomains": ["http://localhost:9876"]
+  }
+}

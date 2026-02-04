@@ -1,0 +1,84 @@
+<html>
+<head>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Inter, system-ui, sans-serif; padding: 16px; background: #1e1e1e; color: #e0e0e0; }
+  h2 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #fff; }
+  .info { font-size: 11px; color: #999; margin-bottom: 16px; line-height: 1.5; }
+  button {
+    width: 100%; padding: 10px; border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  #extract-btn { background: #7c3aed; color: #fff; }
+  #extract-btn:hover { background: #6d28d9; }
+  #extract-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+  #status {
+    margin-top: 12px; padding: 8px; border-radius: 4px;
+    font-size: 11px; line-height: 1.5; display: none;
+  }
+  .success { background: #064e3b; color: #6ee7b7; display: block !important; }
+  .error { background: #7f1d1d; color: #fca5a5; display: block !important; }
+  .progress { background: #1e3a5f; color: #93c5fd; display: block !important; }
+  .stats { margin-top: 8px; font-size: 10px; color: #888; }
+</style>
+</head>
+<body>
+  <h2>Design System Extractor</h2>
+  <p class="info">Extracts colors, typography, spacing, effects, components, variables, and styles from the current Figma file.</p>
+  <button id="extract-btn" onclick="extract()">Extract Design System</button>
+  <div id="status"></div>
+
+<script>
+  const btn = document.getElementById('extract-btn');
+  const status = document.getElementById('status');
+
+  function extract() {
+    btn.disabled = true;
+    btn.textContent = 'Extracting...';
+    status.className = 'progress';
+    status.textContent = 'Scanning document...';
+    parent.postMessage({ pluginMessage: { type: 'extract' } }, '*');
+  }
+
+  onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (msg.type === 'progress') {
+      status.className = 'progress';
+      status.textContent = msg.message;
+    }
+    if (msg.type === 'extracted') {
+      status.className = 'progress';
+      status.textContent = 'Sending to local server...';
+      sendToServer(msg.data);
+    }
+    if (msg.type === 'error') {
+      status.className = 'error';
+      status.textContent = 'Error: ' + msg.message;
+      btn.disabled = false;
+      btn.textContent = 'Extract Design System';
+    }
+  };
+
+  async function sendToServer(data) {
+    try {
+      const resp = await fetch('http://localhost:9876/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!resp.ok) throw new Error('Server responded ' + resp.status);
+      const result = await resp.json();
+      status.className = 'success';
+      const s = data.stats;
+      status.innerHTML = `Saved to: ${result.path}<br>` +
+        `<span class="stats">${s.colors} colors · ${s.textStyles} text styles · ${s.components} components · ${s.variables} variables</span>`;
+    } catch (e) {
+      status.className = 'error';
+      status.textContent = 'Failed to send: ' + e.message + '. Is the server running? (node server.js)';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Extract Design System';
+  }
+</script>
+</body>
+</html>

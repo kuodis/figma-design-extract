@@ -1,0 +1,9 @@
+{
+  "name": "figma-design-extract",
+  "version": "1.0.0",
+  "description": "Extract design systems from Figma and save locally",
+  "main": "server.js",
+  "scripts": {
+    "server": "node server.js"
+  }
+}
