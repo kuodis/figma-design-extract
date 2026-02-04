@@ -12,7 +12,7 @@ Figma Plugin → localhost:9876 → ~/.design-systems/file.json → /design-syst
 
 1. **Figma plugin** scans the open file and extracts every design token, component, and layout
 2. **Local server** receives the JSON and saves it to disk
-3. **Claude Code skill** (`/design-system`) reads the JSON and generates a `.designrules` file
+3. **`/design-system` skill** (from the [kuodis/claude-plugins](https://github.com/kuodis/claude-plugins) marketplace) reads the JSON and generates a `.designrules` file
 
 ## What Gets Extracted
 
@@ -43,7 +43,17 @@ cd figma-design-extract
 ./install.sh
 ```
 
-This creates `~/.design-systems/` for storage and installs the `/design-system` Claude Code skill.
+This creates `~/.design-systems/` for storage.
+
+### Install the `/design-system` skill
+
+The `/design-system` skill is distributed via the [kuodis/claude-plugins](https://github.com/kuodis/claude-plugins) marketplace. Install it in Claude Code:
+
+```
+/plugin install design-system@kuodis/claude-plugins
+```
+
+This makes `/design-system` available globally in any project directory.
 
 ### Load the Figma Plugin
 
@@ -134,12 +144,12 @@ figma-design-extract/
 │   ├── manifest.json    # Figma plugin config
 │   ├── code.js          # Extraction logic
 │   └── ui.html          # Plugin UI
-├── skill/
-│   └── design-system.md # Claude Code /design-system skill
 ├── server.js            # Local HTTP receiver (zero deps)
 ├── install.sh           # One-command setup
 └── package.json
 ```
+
+The `/design-system` skill lives in the [kuodis/claude-plugins](https://github.com/kuodis/claude-plugins) marketplace as a separate plugin.
 
 ## How the Pieces Connect
 
@@ -147,7 +157,7 @@ figma-design-extract/
 
 **Server** (`server.js`) — ~50 lines, zero dependencies (just Node.js `http`). Receives POST on `/extract`, saves JSON with CORS headers so the Figma plugin iframe can reach it.
 
-**Skill** (`skill/design-system.md`) — A Claude Code slash command. Reads the extracted JSON and instructs Claude to generate the `.designrules` output. All processing happens inside Claude Code — no external AI API calls.
+**Skill** ([kuodis/claude-plugins/design-system](https://github.com/kuodis/claude-plugins)) — A Claude Code slash command installed via the plugin marketplace. Reads the extracted JSON and generates the `.designrules` output. Available globally in any project directory.
 
 ## License
 
